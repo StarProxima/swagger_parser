@@ -848,7 +848,10 @@ class OpenApiParser {
 
       final type = ofType?.type ?? _objectConst;
       final import = ofImport;
-      final defaultValue = map[_defaultConst]?.toString();
+      var defaultValue = map[_defaultConst]?.toString();
+      if (defaultValue == '{}') {
+        defaultValue = null;
+      }
 
       return (
         type: UniversalType(
@@ -892,7 +895,10 @@ class OpenApiParser {
         }
       }
 
-      final defaultValue = map[_defaultConst]?.toString();
+      var defaultValue = map[_defaultConst]?.toString();
+      if (defaultValue == '{}') {
+        defaultValue = null;
+      }
 
       return (
         type: UniversalType(
