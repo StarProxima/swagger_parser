@@ -65,8 +65,11 @@ String generatedFileComment({
             : '$_generatedCodeComment\n'
         : '';
 
-const _generatedCodeComment = '''
-// coverage:ignore-file
+const _generatedCodeComment = r'''
+//  _  _ ___  ____ _  _     ____ _ _ _ ____ ____ ____ ____ ____     ___  ____ ____ ____ ____ ____ 
+//   \/  |  \ |___ |  |     [__  | | | |__| | __ | __ |___ |__/     |__] |__| |__/ [__  |___ |__/ 
+//  _/\_ |__/ |___  \/  ___ ___] |_|_| |  | |__] |__] |___ |  \ ___ |    |  | |  \ ___] |___ |  \     
+//  
 // GENERATED CODE - DO NOT MODIFY BY HAND
 ''';
 
