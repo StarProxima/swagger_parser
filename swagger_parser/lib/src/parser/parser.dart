@@ -761,6 +761,12 @@ class OpenApiParser {
       // `object` or `additionalProperties`
       final newName = name ?? additionalName ?? _uniqueName;
       final typeWithImports = <({UniversalType type, String? import})>[];
+      var requiredParameters = <String>[];
+      if (map.containsKey(_requiredConst)) {
+        requiredParameters = (map[_requiredConst] as List<dynamic>)
+            .map((e) => e.toString())
+            .toList();
+      }
       if (map.containsKey(_propertiesConst)) {
         (map[_propertiesConst] as Map<String, dynamic>).forEach((key, value) {
           typeWithImports.add(
@@ -768,11 +774,13 @@ class OpenApiParser {
               value as Map<String, dynamic>,
               name: key,
               root: false,
+              isRequired: requiredParameters.contains(key),
             ),
           );
         });
       }
-      if (map.containsKey(_additionalPropertiesConst)) {
+      if (map.containsKey(_additionalPropertiesConst) &&
+          map[_additionalPropertiesConst] is Map<String, dynamic>) {
         typeWithImports.add(
           _findType(
             map[_additionalPropertiesConst] as Map<String, dynamic>,
@@ -827,7 +835,7 @@ class OpenApiParser {
             (import: ofImport, type: ofType) = _findType(item);
           }
         }
-        // Find nullable type in of two-element allOf, anyOf or oneOf
+        // Find nullable type in of two-element anyOf
         else if (map.containsKey(_anyOfConst) && of.length == 2) {
           final item1 = of[0];
           final item2 = of[1];

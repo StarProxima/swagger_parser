@@ -54,6 +54,7 @@ final class UniversalType {
   /// Whether or not this field is nullable
   final bool nullable;
 
+  /// Copy of [UniversalType] with new values
   UniversalType copyWith({
     String? type,
     String? name,
@@ -121,9 +122,8 @@ final class UniversalType {
       nullable.hashCode;
 
   @override
-  String toString() {
-    return 'UniversalType(\ntype: $type,\nname: $name,\ndescription: $description,\nformat: $format,\njsonKey: $jsonKey,\ndefaultValue: $defaultValue,\nisRequired: $isRequired,\nenumType: $enumType,\narrayDepth: $arrayDepth,\nnullable: $nullable\n)';
-  }
+  String toString() =>
+      'UniversalType(\ntype: $type,\nname: $name,\ndescription: $description,\nformat: $format,\njsonKey: $jsonKey,\ndefaultValue: $defaultValue,\nisRequired: $isRequired,\nenumType: $enumType,\narrayDepth: $arrayDepth,\nnullable: $nullable\n)';
 }
 
 /// Converts [UniversalType] to type from specified language

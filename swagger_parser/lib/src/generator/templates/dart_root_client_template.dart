@@ -14,13 +14,13 @@ String dartRootClientTemplate({
     return '';
   }
 
-  name = name.toPascal;
+  final className = name.toPascal;
 
   final title = openApiInfo.title;
   final summary = openApiInfo.summary;
   final description = openApiInfo.description;
   final version = openApiInfo.version;
-  final fulldescription = switch ((summary, description)) {
+  final fullDescription = switch ((summary, description)) {
     (null, null) => null,
     (_, null) => summary,
     (null, _) => description,
@@ -28,26 +28,22 @@ String dartRootClientTemplate({
   };
 
   final comment =
-      '${title ?? ''}${version != null ? ' `v$version`' : ''}${fulldescription != null ? '\n\n$fulldescription' : ''}';
+      '${title ?? ''}${version != null ? ' `v$version`' : ''}${fullDescription != null ? '\n\n$fullDescription' : ''}';
 
   return '''
 ${generatedFileComment(
     markFileAsGenerated: markFileAsGenerated,
   )}import 'package:dio/dio.dart';
 ${_clientsImport(clientsNames, postfix, putClientsInFolder: putClientsInFolder)}
-abstract class I$name {
-${_interfaceGetters(clientsNames, postfix)}
-}
-
-${descriptionComment(comment)}class $name implements I$name {
-  $name({
-    required Dio dio,
-    required String baseUrl,
+${descriptionComment(comment)}class $className {
+  $className(
+    Dio dio, {
+    String? baseUrl,
   })  : _dio = dio,
         _baseUrl = baseUrl;
 
   final Dio _dio;
-  final String _baseUrl;
+  final String? _baseUrl;
 
 ${_p(clientsNames, postfix)}
 
@@ -67,18 +63,13 @@ String _clientsImport(
               "${'${import}_$postfix'.toSnake}.dart';",
         ).join('\n')}\n';
 
-String _interfaceGetters(Set<String> names, String postfix) => names
-    .map((n) => '  ${n.toPascal + postfix.toPascal} get ${n.toCamel};')
-    .join('\n\n');
-
 String _p(Set<String> names, String postfix) => names
     .map((n) => '  ${n.toPascal + postfix.toPascal}? _${n.toCamel};')
     .join('\n');
 
 String _r(Set<String> names, String postfix) => names
     .map(
-      (n) =>
-          '  @override\n  ${n.toPascal + postfix.toPascal} get ${n.toCamel} => '
+      (n) => '  ${n.toPascal + postfix.toPascal} get ${n.toCamel} => '
           '_${n.toCamel} ??= ${n.toPascal + postfix.toPascal}(_dio, baseUrl: _baseUrl);',
     )
     .join('\n\n');

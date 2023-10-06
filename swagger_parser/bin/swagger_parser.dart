@@ -11,7 +11,6 @@ Future<void> main(List<String> arguments) async {
     final configs = YamlConfig.parseConfigsFromYamlFile(arguments);
 
     GenerationStatistics? totalStats;
-
     var successSchemasCount = 0;
 
     generateMessage();
@@ -25,12 +24,10 @@ Future<void> main(List<String> arguments) async {
           openApi: openApi,
           statistics: stats,
         );
-
         totalStats = totalStats?.merge(stats);
         totalStats ??= stats;
         successSchemasCount++;
-        // ignore: avoid_catches_without_on_clauses
-      } catch (e, s) {
+      } on Object catch (e, s) {
         schemaFailedMessage(
           name: config.name,
           error: e,

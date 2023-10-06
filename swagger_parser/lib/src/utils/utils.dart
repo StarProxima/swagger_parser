@@ -8,6 +8,7 @@ import '../generator/models/universal_type.dart';
 import '../utils/case_utils.dart';
 
 const _green = '\x1B[32m';
+// ignore: unused_element
 const _yellow = '\x1B[33m';
 const _red = '\x1B[31m';
 const _reset = '\x1B[0m';
@@ -50,10 +51,11 @@ String? replaceNotEnglishLetter(String? text) {
 }
 
 /// Specially for File import
-String ioImport(UniversalComponentClass dataClass) => dataClass.parameters
-        .any((p) => p.toSuitableType(ProgrammingLanguage.dart) == 'File')
-    ? "import 'dart:io';\n\n"
-    : '';
+String ioImport(UniversalComponentClass dataClass) => dataClass.parameters.any(
+      (p) => p.toSuitableType(ProgrammingLanguage.dart).startsWith('File'),
+    )
+        ? "import 'dart:io';\n\n"
+        : '';
 
 String generatedFileComment({
   required bool markFileAsGenerated,
@@ -95,12 +97,10 @@ void generateMessage() {
 
 final _numbersRegExp = RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))');
 
-String formatNumber(int number) {
-  return '$number'.replaceAllMapped(
-    _numbersRegExp,
-    (match) => '${match[1]} ',
-  );
-}
+String formatNumber(int number) => '$number'.replaceAllMapped(
+      _numbersRegExp,
+      (match) => '${match[1]} ',
+    );
 
 void schemaStatisticsMessage({
   required OpenApiInfo openApi,
@@ -130,7 +130,6 @@ void schemaFailedMessage({
   String? name,
 }) {
   var title = name ?? '';
-
   if (title.length > 80) {
     title = '${title.substring(0, 80)}...';
   }
