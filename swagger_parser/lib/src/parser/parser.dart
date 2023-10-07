@@ -222,6 +222,7 @@ class OpenApiParser {
                 (e) => e.name == (parameter[_inConst].toString()),
               ),
               type: typeWithImport.type,
+              description: parameter[_descriptionConst]?.toString(),
               name: parameter[_nameConst] == _bodyConst
                   ? null
                   : parameter[_nameConst].toString(),
@@ -271,6 +272,7 @@ class OpenApiParser {
             types.add(
               UniversalRequestType(
                 parameterType: HttpParameterType.part,
+                description: requestBody[_descriptionConst]?.toString(),
                 type: UniversalType(
                   type: currentType.type,
                   name: 'file',
@@ -301,6 +303,7 @@ class OpenApiParser {
                 UniversalRequestType(
                   parameterType: HttpParameterType.part,
                   name: e.key,
+                  description: requestBody[_descriptionConst]?.toString(),
                   type: UniversalType(
                     type: currentType.type,
                     name: e.key,
@@ -329,6 +332,7 @@ class OpenApiParser {
           types.add(
             UniversalRequestType(
               parameterType: HttpParameterType.body,
+              description: requestBody[_descriptionConst]?.toString(),
               type: UniversalType(
                 type: currentType.type,
                 name: _bodyConst,
@@ -409,6 +413,7 @@ class OpenApiParser {
               (e) => e.name == (rawParameter[_inConst].toString()),
             ),
             type: typeWithImport.type,
+            description: rawParameter[_descriptionConst]?.toString(),
             name: rawParameter[_inConst] == _bodyConst
                 ? null
                 : rawParameter[_nameConst].toString(),
@@ -445,13 +450,25 @@ class OpenApiParser {
             ? parametersV2(requestPath)
             : parametersV3(requestPath);
 
+        // Build full description
         final summary = requestPath[_summaryConst]?.toString().trim();
         var description = requestPath[_descriptionConst]?.toString().trim();
         description = switch ((summary, description)) {
-          (null, null) => null,
+          (null, null) || ('', '') => null,
           (_, null) || (_, '') => summary,
           (null, _) || ('', _) => description,
           (_, _) => '$summary\n\n$description',
+        };
+        final parametersDescription = parameters
+            .where((e) => e.description != null)
+            .map((e) => '[${e.name ?? 'body'}] - ${e.description}')
+            .join('\n')
+            .trim();
+        description = switch ((description, parametersDescription)) {
+          (null, '') || ('', '') => null,
+          (_, '') => description,
+          (null, _) || ('', _) => parametersDescription,
+          (_, _) => '$description\n\n$parametersDescription',
         };
 
         final String requestName;
