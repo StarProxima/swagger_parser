@@ -44,10 +44,13 @@ String descriptionComment(
   return '$result\n$end';
 }
 
+/// RegExp for punctuation marks in the end of string
+final _punctuationRegExp = RegExp(r'[^\w\s\d]$');
+
 /// Add dot to string if not exist
 /// https://dart.dev/effective-dart/documentation#do-format-comments-like-sentences
 String? addDot(String? text) =>
-    text != null && text.trim().isNotEmpty && !text.endsWith('.')
+    text != null && text.trim().isNotEmpty && !_punctuationRegExp.hasMatch(text)
         ? '$text.'
         : text;
 
