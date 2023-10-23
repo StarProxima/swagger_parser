@@ -1940,8 +1940,8 @@ class ClassName {
   final String megaMind;
   final Object emptyDescription;
 
-  /// List of data
-  /// This data is a list
+  /// List of data.
+  /// This data is a list.
   final List<String> list;
 
   Map<String, Object?> toJson() => _$ClassNameToJson(this);
@@ -2016,8 +2016,8 @@ class ClassName with _$ClassName {
     required String megaMind,
     required Object emptyDescription,
 
-    /// List of data
-    /// This data is a list
+    /// List of data.
+    /// This data is a list.
     required List<String> list,
 
     /// Default value

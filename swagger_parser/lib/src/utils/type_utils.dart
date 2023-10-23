@@ -154,7 +154,7 @@ Set<UniversalEnumItem> protectEnumItemsNames(Iterable<String> names) {
   return items;
 }
 
-final _nameRegExp = RegExp(r'^[a-zA-Z_][a-zA-Z\d_]*$');
+final nameRegExp = RegExp(r'^[a-zA-Z_][a-zA-Z\d_]*$');
 
 /// Protect name from incorrect symbols, keywords, etc.
 (String? newName, String? description) protectName(
@@ -171,7 +171,7 @@ final _nameRegExp = RegExp(r'^[a-zA-Z_][a-zA-Z\d_]*$');
             'Name not received and was auto-generated.'
           )
         : (null, null),
-    _ when !_nameRegExp.hasMatch(name) => (
+    _ when !nameRegExp.hasMatch(name) => (
         uniqueName(isEnum: isEnum),
         'Incorrect name has been replaced. Original name: `$name`.'
       ),
