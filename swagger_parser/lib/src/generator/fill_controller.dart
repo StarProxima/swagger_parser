@@ -17,6 +17,7 @@ final class FillController {
     bool putClientsInFolder = false,
     bool freezed = false,
     bool enumsToJson = false,
+    bool unknownEnumValue = true,
     bool markFilesAsGenerated = false,
   })  : _openApiInfo = openApiInfo,
         _programmingLanguage = programmingLanguage,
@@ -26,6 +27,7 @@ final class FillController {
         _putClientsInFolder = putClientsInFolder,
         _freezed = freezed,
         _enumsToJson = enumsToJson,
+        _unknownEnumValue = unknownEnumValue,
         _markFilesAsGenerated = markFilesAsGenerated;
 
   final OpenApiInfo _openApiInfo;
@@ -36,6 +38,7 @@ final class FillController {
   final bool _freezed;
   final bool _putClientsInFolder;
   final bool _enumsToJson;
+  final bool _unknownEnumValue;
   final bool _markFilesAsGenerated;
 
   /// Return [GeneratedFile] generated from given [UniversalDataClass]
@@ -47,6 +50,7 @@ final class FillController {
           dataClass,
           freezed: _freezed,
           enumsToJson: _enumsToJson,
+          unknownEnumValue: _unknownEnumValue,
           markFilesAsGenerated: _markFilesAsGenerated,
         ),
       );
