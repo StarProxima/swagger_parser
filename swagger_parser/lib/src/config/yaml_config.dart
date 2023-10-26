@@ -40,6 +40,7 @@ final class YamlConfig {
     this.unknownEnumValue,
     this.markFilesAsGenerated,
     this.originalHttpResponse,
+    this.defaultContentType,
     this.replacementRules = const [],
   });
 
@@ -226,6 +227,13 @@ final class YamlConfig {
       );
     }
 
+    final defaultContentType = yamlConfig['default_content_type'];
+    if (defaultContentType is! String?) {
+      throw const ConfigException(
+        "Config parameter 'default_content_type' must be String.",
+      );
+    }
+
     final originalHttpResponse = yamlConfig['original_http_response'];
     if (originalHttpResponse is! bool?) {
       throw const ConfigException(
@@ -286,6 +294,7 @@ final class YamlConfig {
       unknownEnumValue: unknownEnumValue ?? rootConfig?.unknownEnumValue,
       markFilesAsGenerated:
           markFilesAsGenerated ?? rootConfig?.markFilesAsGenerated,
+      defaultContentType: defaultContentType ?? rootConfig?.defaultContentType,
       replacementRules: replacementRules ?? rootConfig?.replacementRules ?? [],
     );
   }
@@ -382,6 +391,7 @@ final class YamlConfig {
   final bool? enumsPrefix;
   final bool? unknownEnumValue;
   final bool? markFilesAsGenerated;
+  final String? defaultContentType;
   final bool? originalHttpResponse;
   final List<ReplacementRule> replacementRules;
 }
