@@ -54,7 +54,7 @@ swagger_parser:
   schema_path: schemas/openapi.json
   # Sets the url of the OpenApi schema.
   schema_url: https://petstore.swagger.io/v2/swagger.json
-
+  
   # Required. Sets output directory for generated files (Clients and DTOs).
   output_directory: lib/api
 

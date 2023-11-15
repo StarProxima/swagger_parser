@@ -171,6 +171,7 @@ class OpenApiParser {
       return UniversalType(
         type: typeWithImport.type.type,
         arrayDepth: typeWithImport.type.arrayDepth,
+        nullable: map.containsKey('204'),
       );
     }
 
@@ -380,6 +381,7 @@ class OpenApiParser {
       return UniversalType(
         type: typeWithImport.type.type,
         arrayDepth: typeWithImport.type.arrayDepth,
+        nullable: map.containsKey('204'),
       );
     }
 
