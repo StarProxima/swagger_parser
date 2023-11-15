@@ -1,3 +1,16 @@
+## 1.12.0
+- Add new config parameter `export_file`
+
+## 1.11.3
+- Fix: annotating client methods with the first specified content type header in OpenAPI V2 schemas if the specified one is not the default.
+
+## 1.11.2
+- Add description of request parameters to the code docs
+
+## 1.11.1
+- Fixed ref component being wrongly labeled as map
+- Fixed map components being assigned an import despite not needing one
+
 ## 1.11.0
 - Added unknown value to all enums to maintain backwards compatibility when adding new values on the backend
 - Add new config parameter `unknown_enum_value` (dart only) ([#106](https://github.com/Carapacik/swagger_parser/issues/106))

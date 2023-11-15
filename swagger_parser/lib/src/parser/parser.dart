@@ -116,6 +116,7 @@ class OpenApiParser {
   static const _typeConst = 'type';
   static const _versionConst = 'version';
 
+  /// Parse OpenApi parameters into [OpenApiInfo]
   OpenApiInfo parseOpenApiInfo() {
     final info = _definitionFileContent[_infoConst];
     if (info == null || info is! Map<String, dynamic>) {
@@ -397,6 +398,8 @@ class OpenApiParser {
           resultContentType = _multipartFormDataConst;
         } else if (consumes.contains(_formUrlEncodedConst)) {
           resultContentType = _formUrlEncodedConst;
+        } else if (consumes.isNotEmpty && consumes.first != null) {
+          resultContentType = consumes.first as String;
         }
       }
       for (final parameter in map[_parametersConst] as List<dynamic>) {
@@ -481,23 +484,9 @@ class OpenApiParser {
         } else {
           final operationIdName =
               requestPath[_operationIdConst]?.toString().toCamel;
-          final (_, error) = protectName(operationIdName);
-          if (error != null) {
-            description = '$description\n\n$error';
-            requestName = (key + path).toCamel;
-          } else {
-            requestName = operationIdName ?? (key + path).toCamel;
-          }
-        }
-
-        if (_pathMethodName) {
-          requestName = (key + path).toCamel;
-        } else {
-          final operationIdName =
-              requestPath[_operationIdConst]?.toString().toCamel;
-          final (_, error) = protectName(operationIdName);
-          if (error != null) {
-            description = '$description\n\n$error';
+          final (_, nameDescription) = protectName(operationIdName);
+          if (nameDescription != null) {
+            description = '$description\n\n$nameDescription';
             requestName = (key + path).toCamel;
           } else {
             requestName = operationIdName ?? (key + path).toCamel;
@@ -850,7 +839,10 @@ class OpenApiParser {
 
       // To detect is this entity is map or not
       final mapType = map[_typeConst].toString() == _objectConst &&
-              map.containsKey(_additionalPropertiesConst)
+              map.containsKey(_additionalPropertiesConst) &&
+              (map[_additionalPropertiesConst] is Map<String, dynamic>) &&
+              !(map[_additionalPropertiesConst] as Map<String, dynamic>)
+                  .containsKey(r'$ref')
           ? 'string'
           : null;
       if (map.containsKey(_propertiesConst)) {
@@ -892,7 +884,7 @@ class OpenApiParser {
             nullable: map[_nullableConst].toString().toBool(),
             isRequired: isRequired,
           ),
-          import: newName.toPascal,
+          import: null,
         );
       }
 
@@ -1025,7 +1017,9 @@ class OpenApiParser {
       // To detect is this entity is map or not
       final mapType = map[_typeConst].toString() == _objectConst &&
               map.containsKey(_additionalPropertiesConst) &&
-              import == null
+              (map[_additionalPropertiesConst] is Map<String, dynamic>) &&
+              !(map[_additionalPropertiesConst] as Map<String, dynamic>)
+                  .containsKey(r'$ref')
           ? 'string'
           : null;
       final defaultValue = map[_defaultConst]?.toString();
@@ -1085,12 +1079,15 @@ extension on String {
 
 /// All versions of the OpenApi Specification that this package supports
 enum OAS {
-  /// {@nodoc}
+  /// 3.1.x
   v3_1,
 
-  /// {@nodoc}
+  /// 3.0.x
   v3,
 
-  /// {@nodoc}
-  v2
+  /// 2.0
+  v2;
+
+  /// Constructor for OpenApi Specification
+  const OAS();
 }
