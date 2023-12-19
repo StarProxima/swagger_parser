@@ -72,6 +72,7 @@ String? protectDefaultEnum(Object? name) =>
 String? protectDefaultValue(
   Object? name, {
   String? type,
+  String? format,
   bool isEnum = false,
   bool isArray = false,
   bool dart = true,
@@ -99,6 +100,10 @@ String? protectDefaultValue(
   }
 
   if (type == 'string') {
+    if (format == 'date' || format == 'date-time') {
+      return null;
+    }
+
     final quote = dart ? "'" : '"';
     return '$quote${nameStr.replaceAll(quote, dart ? r"\'" : r'\"')}$quote';
   }
