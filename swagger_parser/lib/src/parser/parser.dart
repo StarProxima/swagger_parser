@@ -927,20 +927,27 @@ class OpenApiParser {
         );
       }
 
+      final type = map[_typeConst] as String;
+      final format = map[_formatConst]?.toString();
+      final defaultValue = protectDefaultValue(
+        map[_defaultConst],
+        type: type,
+        format: format,
+      );
+      final nullable = map[_nullableConst].toString().toBool();
+
       // Interception of objectClass creation when Map construction is expected
       if (typeWithImports.length == 1 && typeWithImports[0].import == null) {
         return (
           type: UniversalType(
-            type: map[_typeConst] as String,
+            type: type,
             name: newName.toCamel,
             description: description,
-            format: map.containsKey(_formatConst)
-                ? map[_formatConst].toString()
-                : null,
+            format: format,
             jsonKey: newName,
             mapType: mapType,
-            defaultValue: protectDefaultValue(map[_defaultConst]),
-            nullable: map[_nullableConst].toString().toBool(),
+            defaultValue: defaultValue,
+            nullable: nullable,
             isRequired: isRequired,
           ),
           import: null,
@@ -963,13 +970,11 @@ class OpenApiParser {
           type: newName.toPascal,
           name: newName.toCamel,
           description: description,
-          format: map.containsKey(_formatConst)
-              ? map[_formatConst].toString()
-              : null,
+          format: format,
           jsonKey: newName,
           mapType: mapType,
-          defaultValue: protectDefaultValue(map[_defaultConst]),
-          nullable: map[_nullableConst].toString().toBool(),
+          defaultValue: defaultValue,
+          nullable: nullable,
           isRequired: isRequired,
         ),
         import: newName.toPascal,
@@ -1031,6 +1036,8 @@ class OpenApiParser {
           jsonKey: name,
           defaultValue: protectDefaultValue(
             defaultValue,
+            type: type,
+            format: ofType?.format,
             isEnum: enumType != null,
             isArray: (ofType?.arrayDepth ?? 0) > 0,
           ),
@@ -1088,6 +1095,8 @@ class OpenApiParser {
 
       final enumType = defaultValue != null && import != null ? type : null;
 
+      final format = map[_formatConst]?.toString();
+
       return (
         type: UniversalType(
           type: type,
@@ -1096,8 +1105,12 @@ class OpenApiParser {
           format: map[_formatConst]?.toString(),
           jsonKey: name,
           mapType: mapType,
-          defaultValue:
-              protectDefaultValue(defaultValue, isEnum: enumType != null),
+          defaultValue: protectDefaultValue(
+            defaultValue,
+            type: type,
+            format: format,
+            isEnum: enumType != null,
+          ),
           enumType: enumType,
           isRequired: isRequired,
           nullable: root &&
