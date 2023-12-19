@@ -106,5 +106,5 @@ String _required(UniversalType t) =>
 String _defaultValue(UniversalType t) => t.defaultValue != null
     ? ' = '
         '${t.arrayDepth > 0 ? 'const ' : ''}'
-        '${t.enumType != null ? '${t.type}.${protectDefaultEnum(t.defaultValue?.toCamel)?.toCamel}' : protectDefaultValue(t.defaultValue, type: t.type)}'
+        '${t.enumType != null ? '${t.type}.${protectDefaultEnum(t.defaultValue?.toCamel)?.toCamel}' : protectDefaultValue(t.defaultValue, type: t.type, format: t.format)}'
     : '';
