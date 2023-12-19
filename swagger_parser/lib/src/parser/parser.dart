@@ -72,7 +72,7 @@ class OpenApiParser {
   late final Map<String, dynamic> _definitionFileContent;
   late final OAS _version;
   final List<UniversalComponentClass> _objectClasses = [];
-  final List<UniversalEnumClass> _enumClasses = [];
+  final Set<UniversalEnumClass> _enumClasses = {};
 
   static const _additionalPropertiesConst = 'additionalProperties';
   static const _allOfConst = 'allOf';
@@ -115,6 +115,44 @@ class OpenApiParser {
   static const _titleConst = 'title';
   static const _typeConst = 'type';
   static const _versionConst = 'version';
+  final usedNamesCount = <String, int>{};
+
+  UniversalEnumClass getUniqueEnumClass({
+    required final String name,
+    required final Set<UniversalEnumItem> items,
+    required final String type,
+    required final String? defaultValue,
+    required final String? description,
+  }) {
+    // Search _enumClasses for an enum with the same name and values
+    final enumClass = _enumClasses.firstWhereOrNull(
+      (e) =>
+          e.originalName == name &&
+          const DeepCollectionEquality().equals(e.items, items),
+    );
+
+    if (enumClass != null) {
+      return enumClass;
+    }
+
+    String uniqueName;
+    if (usedNamesCount.containsKey(name)) {
+      usedNamesCount[name] = usedNamesCount[name]! + 1;
+      uniqueName = '$name${usedNamesCount[name]}';
+    } else {
+      usedNamesCount[name] = 1;
+      uniqueName = name;
+    }
+
+    return UniversalEnumClass(
+      originalName: name,
+      name: uniqueName.toPascal,
+      type: type,
+      items: items,
+      defaultValue: defaultValue,
+      description: description,
+    );
+  }
 
   /// Parse OpenApi parameters into [OpenApiInfo]
   OpenApiInfo parseOpenApiInfo() {
@@ -442,9 +480,21 @@ class OpenApiParser {
     }
     (_definitionFileContent[_pathsConst] as Map<String, dynamic>)
         .forEach((path, pathValue) {
-      (pathValue as Map<String, dynamic>).forEach((key, requestPath) {
+      final pathValueMap = pathValue as Map<String, dynamic>;
+
+      // global parameters are defined at the path level (i.e. /users/{id})
+      final globalParameters = <UniversalRequestType>[];
+
+      if (pathValueMap.containsKey(_parametersConst)) {
+        final params = _version == OAS.v2
+            ? parametersV2(pathValue)
+            : parametersV3(pathValue);
+        globalParameters.addAll(params);
+      }
+
+      pathValue.forEach((key, requestPath) {
         // `servers` contains List<dynamic>
-        if (key == _serversConst) {
+        if (key == _serversConst || key == _parametersConst) {
           return;
         }
 
@@ -457,6 +507,15 @@ class OpenApiParser {
         final parameters = _version == OAS.v2
             ? parametersV2(requestPath)
             : parametersV3(requestPath);
+
+        // Add global parameters that have not been overridden by local parameters
+        // defined at the request level.
+        parameters.addAll(
+          globalParameters.where(
+            (e) =>
+                parameters.every((p) => p.name != e.name && p.type != e.type),
+          ),
+        );
 
         // Build full description
         final summary = requestPath[_summaryConst]?.toString().trim();
@@ -590,10 +649,10 @@ class OpenApiParser {
         }
 
         dataClasses.add(
-          UniversalEnumClass(
+          getUniqueEnumClass(
             name: key,
-            type: type,
             items: items,
+            type: type,
             defaultValue: value[_defaultConst]?.toString(),
             description: value[_descriptionConst]?.toString(),
           ),
@@ -625,7 +684,7 @@ class OpenApiParser {
       }
 
       if (value.containsKey(_allOfConst)) {
-        for (final map in value[_allOfConst] as List) {
+        for (final map in value[_allOfConst] as List<dynamic>) {
           if ((map as Map<String, dynamic>).containsKey(_refConst)) {
             var ref = _formatRef(map);
             for (final replacementRule in _replacementRules) {
@@ -718,13 +777,12 @@ class OpenApiParser {
           : 'client';
 
   /// Format `$ref` type
-  String _formatRef(Map<String, dynamic> map, {bool useSchema = false}) => p
-      .basename(
+  String _formatRef(Map<String, dynamic> map, {bool useSchema = false}) =>
+      p.basename(
         useSchema
             ? (map[_schemaConst] as Map<String, dynamic>)[_refConst].toString()
             : map[_refConst].toString(),
-      )
-      .toPascal;
+      );
 
   /// Find type of map
   ({UniversalType type, String? import}) _findType(
@@ -739,6 +797,7 @@ class OpenApiParser {
       final arrayItems = map[_itemsConst] as Map<String, dynamic>;
       final arrayType = _findType(
         arrayItems,
+        name: name,
         additionalName: name,
         root: false,
       );
@@ -787,19 +846,19 @@ class OpenApiParser {
         (map[_enumConst] as List).map((e) => '$e'),
       );
 
-      _enumClasses.add(
-        UniversalEnumClass(
-          name: newName.toPascal,
-          type: map[_typeConst].toString(),
-          items: items,
-          defaultValue: protectDefaultValue(map[_defaultConst], isEnum: true),
-          description: description,
-        ),
+      final enumClass = getUniqueEnumClass(
+        name: newName,
+        items: items,
+        type: map[_typeConst].toString(),
+        defaultValue: protectDefaultValue(map[_defaultConst], isEnum: true),
+        description: description,
       );
+
+      _enumClasses.add(enumClass);
 
       return (
         type: UniversalType(
-          type: newName.toPascal,
+          type: enumClass.name,
           name: variableName.toCamel,
           description: description,
           format: map[_formatConst]?.toString(),
@@ -808,7 +867,7 @@ class OpenApiParser {
           isRequired: isRequired,
           enumType: map[_typeConst]?.toString(),
         ),
-        import: newName,
+        import: enumClass.name,
       );
     }
     //  Object or additionalProperties
@@ -993,13 +1052,14 @@ class OpenApiParser {
       String? import;
       String type;
       if (map.containsKey(_refConst)) {
-        import = _formatRef(map);
+        import = _formatRef(map).toPascal;
       } else if (map.containsKey(_additionalPropertiesConst) &&
           map[_additionalPropertiesConst] is Map<String, dynamic> &&
           (map[_additionalPropertiesConst] as Map<String, dynamic>)
               .containsKey(_refConst)) {
         import =
-            _formatRef(map[_additionalPropertiesConst] as Map<String, dynamic>);
+            _formatRef(map[_additionalPropertiesConst] as Map<String, dynamic>)
+                .toPascal;
       }
 
       if (map.containsKey(_typeConst)) {
@@ -1021,7 +1081,7 @@ class OpenApiParser {
               map.containsKey(_additionalPropertiesConst) &&
               (map[_additionalPropertiesConst] is Map<String, dynamic>) &&
               !(map[_additionalPropertiesConst] as Map<String, dynamic>)
-                  .containsKey(r'$ref')
+                  .containsKey(_refConst)
           ? 'string'
           : null;
       final defaultValue = map[_defaultConst]?.toString();

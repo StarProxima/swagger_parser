@@ -16,7 +16,10 @@
 - Support for generation by link
 - Support for multiple schemes
 - Generate REST client files based on Retrofit
-- Generate data classes (also on [freezed](https://pub.dev/packages/freezed))
+- Generate data classes, using one of the following serializer:
+  - [json_serializable](https://pub.dev/packages/json_serializable)
+  - [freezed](https://pub.dev/packages/freezed)
+  - [dart_mappable](https://pub.dev/packages/dart_mappable)
 - Support for multiple languages (Dart, Kotlin)
 - Web interface at https://carapacik.github.io/swagger_parser
 
@@ -28,16 +31,18 @@ In your pubspec.yaml, add the following dependencies:
 
 ```yaml
 dependencies:
-  # dio: ^5.3.0
+  # dart_mappable: ^4.1.0  # for dart_mappable
+  # dio: ^5.4.0
   # freezed_annotation: ^2.4.1 # for freezed
   # json_annotation: ^4.8.1
   # retrofit: ^4.0.3
 
 dev_dependencies:
-  # build_runner: ^2.4.6
+  # build_runner: ^2.4.7
+  # dart_mappable_builder: ^4.1.0  # for dart_mappable
   # freezed: ^2.4.5 # for freezed
   # json_serializable: ^6.7.1
-  # retrofit_generator: ^8.0.2
+  # retrofit_generator: ^8.0.5
   swagger_parser:
 ```
 
@@ -52,6 +57,7 @@ swagger_parser:
   
   # Sets the OpenApi schema path directory for api definition.
   schema_path: schemas/openapi.json
+
   # Sets the url of the OpenApi schema.
   schema_url: https://petstore.swagger.io/v2/swagger.json
   
@@ -66,8 +72,9 @@ swagger_parser:
   # Current available options are: path, url.
   prefer_schema_source: url
 
-  # Optional (dart only). Set 'true' to generate data classes using freezed package.
-  freezed: false
+  # Optional (dart only).
+  # Current available serializers are: 'json_serializable', 'freezed' and 'dart_mappable'.
+  json_serializer: json_serializable
 
   # Optional (dart only). Set 'true' to generate root client
   # with interface and all clients instances.
@@ -144,9 +151,16 @@ swagger_parser:
   schemas:
     - schema_path: schemas/openapi.json
       root_client_name: ApiMicroservice
-      freezed: true
+      jsonSerializer: "freezed"
       put_in_folder: true
       replacement_rules: []
+
+    - schema_url: https://petstore.swagger.io/v2/swagger.json
+      name: pet_service_dart_mappable
+      jsonSerializer: "dart_mappable"
+      client_postfix: Service
+      put_clients_in_folder: true
+      put_in_folder: true
 
     - schema_url: https://petstore.swagger.io/v2/swagger.json
       name: pet_service

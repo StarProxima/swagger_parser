@@ -17,8 +17,9 @@ swagger_parser:
   # Current available options are: path, url.
   prefer_schema_source: url
 
-  # Optional (dart only). Set 'true' to generate data classes using freezed package.
-  freezed: false
+  # Optional (dart only).
+  # Current available serializers are: 'json_serializable', 'freezed' and 'dart_mappable'.
+  json_serializer: json_serializable
 
   # Optional (dart only). Set 'true' to generate root client
   # with interface and all clients instances.
@@ -83,9 +84,16 @@ swagger_parser:
   schemas:
     - schema_path: schemas/openapi.json
       root_client_name: ApiMicroservice
-      freezed: true
+      jsonSerializer: "freezed"
       put_in_folder: true
       replacement_rules: []
+
+    - schema_url: https://petstore.swagger.io/v2/swagger.json
+      name: pet_service_dart_mappable
+      jsonSerializer: "dart_mappable"
+      client_postfix: Service
+      put_clients_in_folder: true
+      put_in_folder: true
 
     - schema_url: https://petstore.swagger.io/v2/swagger.json
       name: pet_service
