@@ -2,6 +2,7 @@
 
 import 'package:swagger_parser/src/generator/fill_controller.dart';
 import 'package:swagger_parser/src/generator/models/generated_file.dart';
+import 'package:swagger_parser/src/generator/models/json_serializer.dart';
 import 'package:swagger_parser/src/generator/models/programming_language.dart';
 import 'package:swagger_parser/src/generator/models/universal_data_class.dart';
 import 'package:swagger_parser/src/generator/models/universal_type.dart';
@@ -40,7 +41,9 @@ class ClassName {
         imports: {},
         parameters: [],
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -129,7 +132,9 @@ class ClassName {
         },
         parameters: [],
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -284,7 +289,9 @@ class ClassName {
           UniversalType(type: 'Another', name: 'anotherType'),
         ],
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'dart:io';
@@ -315,6 +322,94 @@ class ClassName with _$ClassName {
 }
 ''';
       expect(filledContent.contents, expectedContents);
+    });
+
+    test('dart + dart_mappable', () async {
+      const dataClass = UniversalComponentClass(
+        name: 'ClassName',
+        imports: {},
+        parameters: [
+          UniversalType(type: 'integer', name: 'intType'),
+          UniversalType(type: 'number', name: 'numberType'),
+          UniversalType(
+            type: 'number',
+            format: 'double',
+            name: 'doubleNumberType',
+          ),
+          UniversalType(
+            type: 'number',
+            format: 'float',
+            name: 'floatNumberType',
+          ),
+          UniversalType(type: 'string', name: 'stringType'),
+          UniversalType(
+            type: 'string',
+            format: 'binary',
+            name: 'binaryStringType',
+          ),
+          UniversalType(
+            type: 'string',
+            format: 'date',
+            name: 'dateStringType',
+          ),
+          UniversalType(
+            type: 'string',
+            format: 'date-time',
+            name: 'dateTimeStringType',
+          ),
+          UniversalType(type: 'file', name: 'fileType'),
+          UniversalType(type: 'boolean', name: 'boolType'),
+          UniversalType(type: 'object', name: 'objectType'),
+          UniversalType(type: 'Another', name: 'anotherType'),
+        ],
+      );
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.dartMappable,
+      );
+      final filledContent = fillController.fillDtoContent(dataClass);
+      const expectedContents = '''
+import 'package:dart_mappable/dart_mappable.dart';
+
+part 'class_name.mapper.dart';
+
+@MappableClass()
+class ClassName with ClassNameMappable {
+
+  const ClassName({
+    required this.intType,
+    required this.numberType,
+    required this.doubleNumberType,
+    required this.floatNumberType,
+    required this.stringType,
+    required this.binaryStringType,
+    required this.dateStringType,
+    required this.dateTimeStringType,
+    required this.fileType,
+    required this.boolType,
+    required this.objectType,
+    required this.anotherType,
+  });
+
+  final int intType;
+  final num numberType;
+  final double doubleNumberType;
+  final double floatNumberType;
+  final String stringType;
+  final File binaryStringType;
+  final DateTime dateStringType;
+  final DateTime dateTimeStringType;
+  final File fileType;
+  final bool boolType;
+  final Object objectType;
+  final Another anotherType;
+
+  static ClassName fromJson(Map<String, dynamic> json) => ClassNameMapper.ensureInitialized().decodeMap<ClassName>(json);
+}
+''';
+      expect(
+        filledContent.contents,
+        equalsIgnoringWhitespace(expectedContents),
+      );
     });
 
     test('kotlin + moshi', () async {
@@ -434,7 +529,9 @@ class ClassName {
           UniversalType(type: 'Another', name: 'list5', arrayDepth: 5),
         ],
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -566,7 +663,9 @@ class ClassName {
           ),
         ],
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -742,7 +841,9 @@ class ClassName {
           ),
         ],
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -895,7 +996,9 @@ class ClassName {
           ),
         ],
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -1031,7 +1134,9 @@ class ClassName {
           UniversalType(type: 'Another', name: 'list', arrayDepth: 1),
         ],
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -1092,12 +1197,13 @@ class ClassName with _$ClassName {
                 '3item_three',
                 '4ITEM-FOUR',
                 '5иллегалчарактер',
+                '6 item six',
               },
             ),
           ),
         ];
 
-        const fillController = FillController();
+        const fillController = FillController(unknownEnumValue: false);
         final files = <GeneratedFile>[];
         for (final enumClass in dataClasses) {
           files.add(fillController.fillDtoContent(enumClass));
@@ -1109,8 +1215,10 @@ import 'package:json_annotation/json_annotation.dart';
 enum EnumName {
   @JsonValue(1)
   value1,
+
   @JsonValue(2)
   value2,
+
   @JsonValue(3)
   value3;
 }
@@ -1123,10 +1231,13 @@ import 'package:json_annotation/json_annotation.dart';
 enum EnumNameString {
   @JsonValue('itemOne')
   itemOne,
+
   @JsonValue('ItemTwo')
   itemTwo,
+
   @JsonValue('item_three')
   itemThree,
+
   @JsonValue('ITEM-FOUR')
   itemFour,
 
@@ -1161,16 +1272,22 @@ import 'package:json_annotation/json_annotation.dart';
 enum EnumNameStringWithLeadingNumbers {
   @JsonValue('1itemOne')
   value1itemOne,
+
   @JsonValue('2ItemTwo')
   value2ItemTwo,
+
   @JsonValue('3item_three')
   value3itemThree,
+
   @JsonValue('4ITEM-FOUR')
   value4ItemFour,
 
   /// Incorrect name has been replaced. Original name: `5иллегалчарактер`.
   @JsonValue('5иллегалчарактер')
-  undefined0;
+  undefined0,
+
+  @JsonValue('6 item six')
+  value6ItemSix;
 }
 ''';
 
@@ -1196,56 +1313,57 @@ enum EnumNameStringWithLeadingNumbers {
           ),
         ];
 
-        const fillController = FillController(enumsToJson: true);
+        const fillController =
+            FillController(enumsToJson: true, unknownEnumValue: false);
         final files = <GeneratedFile>[];
         for (final enumClass in dataClasses) {
           files.add(fillController.fillDtoContent(enumClass));
         }
-        const expectedContent0 = r'''
+        const expectedContent0 = '''
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonEnum()
 enum EnumName {
   @JsonValue(1)
-  value1,
+  value1(1),
+
   @JsonValue(2)
-  value2,
+  value2(2),
+
   @JsonValue(3)
-  value3;
+  value3(3);
 
-  int toJson() => _$EnumNameEnumMap[this]!;
+  const EnumName(this.json);
+
+  final int? json;
+
+  int? toJson() => json;
 }
-
-const _$EnumNameEnumMap = {
-  EnumName.value1: 1,
-  EnumName.value2: 2,
-  EnumName.value3: 3,
-};
 ''';
 
-        const expectedContent1 = r'''
+        const expectedContent1 = '''
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonEnum()
 enum EnumNameString {
   @JsonValue('itemOne')
-  itemOne,
+  itemOne('itemOne'),
+
   @JsonValue('ItemTwo')
-  itemTwo,
+  itemTwo('ItemTwo'),
+
   @JsonValue('item_three')
-  itemThree,
+  itemThree('item_three'),
+
   @JsonValue('ITEM-FOUR')
-  itemFour;
+  itemFour('ITEM-FOUR');
 
-  String toJson() => _$EnumNameStringEnumMap[this]!;
+  const EnumNameString(this.json);
+
+  final String? json;
+
+  String? toJson() => json;
 }
-
-const _$EnumNameStringEnumMap = {
-  EnumNameString.itemOne: 'itemOne',
-  EnumNameString.itemTwo: 'ItemTwo',
-  EnumNameString.itemThree: 'item_three',
-  EnumNameString.itemFour: 'ITEM-FOUR',
-};
 ''';
 
         expect(files[0].contents, expectedContent0);
@@ -1274,7 +1392,10 @@ const _$EnumNameStringEnumMap = {
             items: UniversalEnumItem.listFromNames({'FALSE', 'for', 'do'}),
           ),
         ];
-        const fillController = FillController(freezed: true);
+        const fillController = FillController(
+          jsonSerializer: JsonSerializer.freezed,
+          unknownEnumValue: false,
+        );
         final files = <GeneratedFile>[];
         for (final enumClass in dataClasses) {
           files.add(fillController.fillDtoContent(enumClass));
@@ -1286,8 +1407,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 enum EnumName {
   @JsonValue(1)
   value1,
+
   @JsonValue(2)
   value2,
+
   @JsonValue(3)
   value3;
 }
@@ -1300,10 +1423,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 enum EnumNameString {
   @JsonValue('itemOne')
   itemOne,
+
   @JsonValue('ItemTwo')
   itemTwo,
+
   @JsonValue('item_three')
   itemThree,
+
   @JsonValue('ITEM-FOUR')
   itemFour;
 }
@@ -1342,11 +1468,14 @@ enum KeywordsName {
             name: 'EnumNameString',
             type: 'string',
             items: UniversalEnumItem.listFromNames(
-              {'itemOne', 'ItemTwo', 'item_three', 'ITEM-FOUR'},
+              {'itemOne', 'ItemTwo', 'item_three', 'ITEM-FOUR', 'Item five'},
             ),
           ),
         ];
-        const fillController = FillController(freezed: true, enumsToJson: true);
+        const fillController = FillController(
+          jsonSerializer: JsonSerializer.freezed,
+          enumsToJson: true,
+        );
         final files = <GeneratedFile>[];
         for (final enumClass in dataClasses) {
           files.add(fillController.fillDtoContent(enumClass));
@@ -1358,20 +1487,28 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 @JsonEnum()
 enum EnumName {
   @JsonValue(1)
-  value1,
+  value1(1),
+
   @JsonValue(2)
-  value2,
+  value2(2),
+
   @JsonValue(3)
-  value3;
+  value3(3),
 
-  int toJson() => _$EnumNameEnumMap[this]!;
+  /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
+  $unknown(null);
+
+  const EnumName(this.json);
+
+  factory EnumName.fromJson(int json) => values.firstWhere(
+        (e) => e.json == json,
+        orElse: () => $unknown,
+      );
+
+  final int? json;
+
+  int? toJson() => json;
 }
-
-const _$EnumNameEnumMap = {
-  EnumName.value1: 1,
-  EnumName.value2: 2,
-  EnumName.value3: 3,
-};
 ''';
 
         const expectedContent1 = r'''
@@ -1380,23 +1517,34 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 @JsonEnum()
 enum EnumNameString {
   @JsonValue('itemOne')
-  itemOne,
+  itemOne('itemOne'),
+
   @JsonValue('ItemTwo')
-  itemTwo,
+  itemTwo('ItemTwo'),
+
   @JsonValue('item_three')
-  itemThree,
+  itemThree('item_three'),
+
   @JsonValue('ITEM-FOUR')
-  itemFour;
+  itemFour('ITEM-FOUR'),
 
-  String toJson() => _$EnumNameStringEnumMap[this]!;
+  @JsonValue('Item five')
+  itemFive('Item five'),
+
+  /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
+  $unknown(null);
+
+  const EnumNameString(this.json);
+
+  factory EnumNameString.fromJson(String json) => values.firstWhere(
+        (e) => e.json == json,
+        orElse: () => $unknown,
+      );
+
+  final String? json;
+
+  String? toJson() => json;
 }
-
-const _$EnumNameStringEnumMap = {
-  EnumNameString.itemOne: 'itemOne',
-  EnumNameString.itemTwo: 'ItemTwo',
-  EnumNameString.itemThree: 'item_three',
-  EnumNameString.itemFour: 'ITEM-FOUR',
-};
 ''';
         expect(files[0].contents, expectedContent0);
         expect(files[1].contents, expectedContent1);
@@ -1495,19 +1643,34 @@ enum class KeywordsName {
       const fillController = FillController();
       final file = fillController.fillDtoContent(dataClass);
 
-      const expectedContent = '''
+      const expectedContent = r'''
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonEnum()
 enum EnumName {
   @JsonValue(-2)
-  valueMinus2,
+  valueMinus2(-2),
+
   @JsonValue(-1)
-  valueMinus1,
+  valueMinus1(-1),
+
   @JsonValue(0)
-  value0,
+  value0(0),
+
   @JsonValue(1)
-  value1;
+  value1(1),
+
+  /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
+  $unknown(null);
+
+  const EnumName(this.json);
+
+  factory EnumName.fromJson(int json) => values.firstWhere(
+        (e) => e.json == json,
+        orElse: () => $unknown,
+      );
+
+  final int? json;
 }
 ''';
 
@@ -1520,22 +1683,39 @@ enum EnumName {
         type: 'int',
         items: UniversalEnumItem.listFromNames({'-2', '-1', '0', '1'}),
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final file = fillController.fillDtoContent(dataClass);
 
-      const expectedContent = '''
+      const expectedContent = r'''
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 @JsonEnum()
 enum EnumName {
   @JsonValue(-2)
-  valueMinus2,
+  valueMinus2(-2),
+
   @JsonValue(-1)
-  valueMinus1,
+  valueMinus1(-1),
+
   @JsonValue(0)
-  value0,
+  value0(0),
+
   @JsonValue(1)
-  value1;
+  value1(1),
+
+  /// Default value for all unparsed values, allows backward compatibility when adding new values on the backend.
+  $unknown(null);
+
+  const EnumName(this.json);
+
+  factory EnumName.fromJson(int json) => values.firstWhere(
+        (e) => e.json == json,
+        orElse: () => $unknown,
+      );
+
+  final int? json;
 }
 ''';
 
@@ -1778,7 +1958,9 @@ class ClassName {
           ),
         ],
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -1992,7 +2174,9 @@ class ClassName {
           ),
         ],
       );
-      const fillController = FillController(freezed: true);
+      const fillController = FillController(
+        jsonSerializer: JsonSerializer.freezed,
+      );
       final filledContent = fillController.fillDtoContent(dataClass);
       const expectedContents = r'''
 import 'package:freezed_annotation/freezed_annotation.dart';

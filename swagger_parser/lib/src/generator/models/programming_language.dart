@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 
 import '../generator_exception.dart';
+import '../templates/dart_dart_mappable_dto_template.dart';
 import '../templates/dart_enum_dto_template.dart';
 import '../templates/dart_export_file_template.dart';
 import '../templates/dart_freezed_dto_template.dart';
@@ -13,6 +14,7 @@ import '../templates/kotlin_moshi_dto_template.dart';
 import '../templates/kotlin_retrofit_client_template.dart';
 import '../templates/kotlin_typedef_template.dart';
 import 'generated_file.dart';
+import 'json_serializer.dart';
 import 'open_api_info.dart';
 import 'universal_data_class.dart';
 import 'universal_rest_client.dart';
@@ -38,8 +40,9 @@ enum ProgrammingLanguage {
   /// Determines template for generating DTOs by language
   String dtoFileContent(
     UniversalDataClass dataClass, {
-    required bool freezed,
+    required JsonSerializer jsonSerializer,
     required bool enumsToJson,
+    required bool unknownEnumValue,
     required bool markFilesAsGenerated,
   }) {
     switch (this) {
@@ -47,8 +50,9 @@ enum ProgrammingLanguage {
         if (dataClass is UniversalEnumClass) {
           return dartEnumDtoTemplate(
             dataClass,
-            freezed: freezed,
+            jsonSerializer: jsonSerializer,
             enumsToJson: enumsToJson,
+            unknownEnumValue: unknownEnumValue,
             markFileAsGenerated: markFilesAsGenerated,
           );
         } else if (dataClass is UniversalComponentClass) {
@@ -58,16 +62,24 @@ enum ProgrammingLanguage {
               markFileAsGenerated: markFilesAsGenerated,
             );
           }
-          if (freezed) {
-            return dartFreezedDtoTemplate(
-              dataClass,
-              markFileAsGenerated: markFilesAsGenerated,
-            );
+
+          switch (jsonSerializer) {
+            case JsonSerializer.freezed:
+              return dartFreezedDtoTemplate(
+                dataClass,
+                markFileAsGenerated: markFilesAsGenerated,
+              );
+            case JsonSerializer.jsonSerializable:
+              return dartJsonSerializableDtoTemplate(
+                dataClass,
+                markFileAsGenerated: markFilesAsGenerated,
+              );
+            case JsonSerializer.dartMappable:
+              return dartDartMappableDtoTemplate(
+                dataClass,
+                markFileAsGenerated: markFilesAsGenerated,
+              );
           }
-          return dartJsonSerializableDtoTemplate(
-            dataClass,
-            markFileAsGenerated: markFilesAsGenerated,
-          );
         }
       case kotlin:
         if (dataClass is UniversalEnumClass) {
@@ -96,12 +108,14 @@ enum ProgrammingLanguage {
     UniversalRestClient restClient,
     String name, {
     required bool markFilesAsGenerated,
+    required String defaultContentType,
   }) =>
       switch (this) {
         dart => dartRetrofitClientTemplate(
             restClient: restClient,
             name: name,
             markFileAsGenerated: markFilesAsGenerated,
+            defaultContentType: defaultContentType,
           ),
         kotlin => kotlinRetrofitClientTemplate(
             restClient: restClient,

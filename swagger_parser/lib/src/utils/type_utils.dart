@@ -61,7 +61,7 @@ String uniqueName({bool isEnum = false}) {
   return name;
 }
 
-final _enumNameRegExp = RegExp(r'^[a-zA-Z\d_-]*$');
+final _enumNameRegExp = RegExp(r'^[a-zA-Z\d_-\s]*$');
 final _startWithNumberRegExp = RegExp(r'^-?\d+');
 
 /// Protect default enum value from incorrect symbols, keywords, etc.
@@ -72,6 +72,7 @@ String? protectDefaultEnum(Object? name) =>
 String? protectDefaultValue(
   Object? name, {
   String? type,
+  String? format,
   bool isEnum = false,
   bool isArray = false,
   bool dart = true,
@@ -99,8 +100,12 @@ String? protectDefaultValue(
   }
 
   if (type == 'string') {
-    final k = dart ? "'" : '"';
-    return '$k${nameStr.replaceAll(k, dart ? r"\'" : r'\"')}$k';
+    if (format == 'date' || format == 'date-time') {
+      return null;
+    }
+
+    final quote = dart ? "'" : '"';
+    return '$quote${nameStr.replaceAll(quote, dart ? r"\'" : r'\"')}$quote';
   }
 
   return nameStr;
@@ -124,7 +129,7 @@ Set<UniversalEnumItem> protectEnumItemsNames(Iterable<String> names) {
   }
 
   for (final name in names) {
-    final (newName, error) = switch (name) {
+    final (newName, renameDescription) = switch (name) {
       _
           when _startWithNumberRegExp.hasMatch(name) &&
               _enumNameRegExp.hasMatch(numberEnumItemName(name).toCamel) =>
@@ -146,7 +151,7 @@ Set<UniversalEnumItem> protectEnumItemsNames(Iterable<String> names) {
       UniversalEnumItem(
         name: newName,
         jsonKey: name,
-        description: error,
+        description: renameDescription,
       ),
     );
   }
@@ -154,7 +159,7 @@ Set<UniversalEnumItem> protectEnumItemsNames(Iterable<String> names) {
   return items;
 }
 
-final _nameRegExp = RegExp(r'^[a-zA-Z_][a-zA-Z\d_]*$');
+final nameRegExp = RegExp(r'^[a-zA-Z_][a-zA-Z\d_]*$');
 
 /// Protect name from incorrect symbols, keywords, etc.
 (String? newName, String? description) protectName(
@@ -171,7 +176,7 @@ final _nameRegExp = RegExp(r'^[a-zA-Z_][a-zA-Z\d_]*$');
             'Name not received and was auto-generated.'
           )
         : (null, null),
-    _ when !_nameRegExp.hasMatch(name) => (
+    _ when !nameRegExp.hasMatch(name) => (
         uniqueName(isEnum: isEnum),
         'Incorrect name has been replaced. Original name: `$name`.'
       ),

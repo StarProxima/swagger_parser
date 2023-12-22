@@ -26,6 +26,7 @@ void main() {
               requestType: HttpRequestType.post,
               route: '/api/Auth/register',
               returnType: UniversalType(type: 'string'),
+              contentType: 'text/json',
               parameters: [
                 UniversalRequestType(
                   parameterType: HttpParameterType.body,
@@ -33,6 +34,7 @@ void main() {
                     type: 'RegisterUserDto',
                     name: 'body',
                     jsonKey: 'body',
+                    isRequired: false,
                   ),
                 ),
               ],
@@ -57,6 +59,7 @@ void main() {
                     description: 'tags to filter by',
                     jsonKey: 'tags',
                     arrayDepth: 1,
+                    isRequired: false,
                   ),
                   parameterType: HttpParameterType.query,
                 ),
@@ -79,7 +82,7 @@ void main() {
               requestType: HttpRequestType.patch,
               route: '/api/User/{id}/avatar',
               returnType: null,
-              isMultiPart: true,
+              contentType: 'multipart/form-data',
               parameters: [
                 UniversalRequestType(
                   name: 'avatar',
@@ -87,6 +90,7 @@ void main() {
                     type: 'file',
                     name: 'avatar',
                     jsonKey: 'avatar',
+                    isRequired: false,
                   ),
                   parameterType: HttpParameterType.formData,
                 ),
@@ -97,6 +101,7 @@ void main() {
                     name: 'id',
                     format: 'int32',
                     jsonKey: 'id',
+                    isRequired: false,
                   ),
                   parameterType: HttpParameterType.path,
                 ),
@@ -106,7 +111,7 @@ void main() {
         ),
       ];
       for (var i = 0; i < actualRestClients.length; i++) {
-        expect(actualRestClients.last, expectedRestClients.last);
+        expect(actualRestClients[i], expectedRestClients[i]);
       }
     });
 
@@ -134,6 +139,7 @@ void main() {
                     type: 'RegisterUserDto',
                     name: 'body',
                     jsonKey: 'body',
+                    isRequired: false,
                   ),
                 ),
               ],
@@ -157,6 +163,7 @@ void main() {
                     name: 'limit',
                     format: 'int32',
                     jsonKey: 'limit',
+                    isRequired: false,
                   ),
                   parameterType: HttpParameterType.query,
                 ),
@@ -167,6 +174,7 @@ void main() {
                     name: 'tags',
                     jsonKey: 'tags',
                     arrayDepth: 1,
+                    isRequired: false,
                   ),
                   parameterType: HttpParameterType.query,
                 ),
@@ -177,7 +185,7 @@ void main() {
               requestType: HttpRequestType.patch,
               route: '/api/User/{id}/avatar',
               returnType: null,
-              isMultiPart: true,
+              contentType: 'multipart/form-data',
               parameters: [
                 UniversalRequestType(
                   name: 'id',
@@ -186,6 +194,7 @@ void main() {
                     name: 'id',
                     format: 'int32',
                     jsonKey: 'id',
+                    isRequired: false,
                   ),
                   parameterType: HttpParameterType.path,
                 ),

@@ -11,7 +11,9 @@ import 'fill_controller.dart';
 import 'generator_exception.dart';
 import 'models/generated_file.dart';
 import 'models/generation_statistics.dart';
+import 'models/json_serializer.dart';
 import 'models/open_api_info.dart';
+import 'models/prefer_schema_source.dart';
 import 'models/programming_language.dart';
 import 'models/replacement_rule.dart';
 import 'models/universal_data_class.dart';
@@ -33,17 +35,20 @@ final class Generator {
     PreferSchemaSource? preferSchemeSource,
     ProgrammingLanguage? language,
     String? name,
-    bool? freezed,
+    JsonSerializer? jsonSerializer,
     bool? rootClient,
     String? clientPostfix,
     bool? exportFile,
     String? rootClientName,
     bool? putClientsInFolder,
     bool? squashClients,
+    bool? originalHttpResponse,
     bool? pathMethodName,
     bool? putInFolder,
     bool? enumsToJson,
     bool? enumsPrefix,
+    bool? unknownEnumValue,
+    String? defaultContentType,
     bool? markFilesAsGenerated,
     List<ReplacementRule>? replacementRules,
   })  : _schemaPath = schemaPath,
@@ -55,18 +60,21 @@ final class Generator {
         _outputDirectory = outputDirectory,
         _name = name,
         _programmingLanguage = language ?? ProgrammingLanguage.dart,
-        _freezed = freezed ?? false,
+        _jsonSerializer = jsonSerializer ?? JsonSerializer.jsonSerializable,
         _rootClient = rootClient ?? true,
         _rootClientName = rootClientName ?? 'RestClient',
         _exportFile = exportFile ?? true,
         _clientPostfix = clientPostfix ?? 'Client',
         _putClientsInFolder = putClientsInFolder ?? false,
         _squashClients = squashClients ?? false,
+        _originalHttpResponse = originalHttpResponse ?? false,
         _pathMethodName = pathMethodName ?? false,
         _putInFolder = putInFolder ?? false,
         _enumsToJson = enumsToJson ?? false,
         _enumsPrefix = enumsPrefix ?? false,
+        _unknownEnumValue = unknownEnumValue ?? true,
         _markFilesAsGenerated = markFilesAsGenerated ?? true,
+        _defaultContentType = defaultContentType ?? 'application/json',
         _replacementRules = replacementRules ?? const [];
 
   /// Applies parameters set from yaml config file
@@ -79,17 +87,19 @@ final class Generator {
       preferSchemeSource: yamlConfig.preferSchemaSource,
       language: yamlConfig.language,
       name: yamlConfig.name,
-      freezed: yamlConfig.freezed,
+      jsonSerializer: yamlConfig.jsonSerializer,
       rootClient: yamlConfig.rootClient,
       rootClientName: yamlConfig.rootClientName,
       exportFile: yamlConfig.exportFile,
       clientPostfix: yamlConfig.clientPostfix,
       putClientsInFolder: yamlConfig.putClientsInFolder,
       squashClients: yamlConfig.squashClients,
+      originalHttpResponse: yamlConfig.originalHttpResponse,
       pathMethodName: yamlConfig.pathMethodName,
       putInFolder: yamlConfig.putInFolder,
       enumsToJson: yamlConfig.enumsToJson,
       enumsPrefix: yamlConfig.enumsPrefix,
+      unknownEnumValue: yamlConfig.unknownEnumValue,
       markFilesAsGenerated: yamlConfig.markFilesAsGenerated,
       replacementRules: yamlConfig.replacementRules,
     );
@@ -123,7 +133,7 @@ final class Generator {
   final ProgrammingLanguage _programmingLanguage;
 
   /// Use freezed to generate DTOs
-  final bool _freezed;
+  final JsonSerializer _jsonSerializer;
 
   /// Generate root client for all Clients
   final bool _rootClient;
@@ -143,6 +153,9 @@ final class Generator {
   /// Squash all clients in one client.
   final bool _squashClients;
 
+  /// Generate request methods with HttpResponse<Entity>
+  final bool _originalHttpResponse;
+
   /// If true, use the endpoint path for the method name, if false, use operationId
   final bool _pathMethodName;
 
@@ -155,8 +168,14 @@ final class Generator {
   /// If true, generated enums will have parent component name in its class name
   final bool _enumsPrefix;
 
+  /// If true, adds an unknown value for all enums to maintain backward compatibility when adding new values on the backend.
+  final bool _unknownEnumValue;
+
   /// If true, generated files will be marked as generated
   final bool _markFilesAsGenerated;
+
+  /// Content type for all requests, default 'application/json'
+  final String _defaultContentType;
 
   /// List of rules used to replace patterns in generated class names
   final List<ReplacementRule> _replacementRules;
@@ -262,6 +281,8 @@ final class Generator {
       name: _name,
       squashClients: _squashClients,
       replacementRules: _replacementRules,
+      originalHttpResponse: _originalHttpResponse,
+      defaultContentType: _defaultContentType,
     );
     _openApiInfo = parser.parseOpenApiInfo();
     _restClients = parser.parseRestClients();
@@ -289,10 +310,12 @@ final class Generator {
       rootClientName: _rootClientName,
       clientPostfix: _clientPostfix,
       exportFileName: _name ?? 'export',
-      freezed: _freezed,
+      jsonSerializer: _jsonSerializer,
       putClientsInFolder: _putClientsInFolder,
       enumsToJson: _enumsToJson,
+      unknownEnumValue: _unknownEnumValue,
       markFilesAsGenerated: _markFilesAsGenerated,
+      defaultContentType: _defaultContentType,
     );
 
     final restClientFiles =

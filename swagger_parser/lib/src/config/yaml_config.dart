@@ -2,6 +2,8 @@ import 'package:args/args.dart';
 import 'package:collection/collection.dart';
 import 'package:yaml/yaml.dart';
 
+import '../generator/models/json_serializer.dart';
+import '../generator/models/prefer_schema_source.dart';
 import '../generator/models/programming_language.dart';
 import '../generator/models/replacement_rule.dart';
 import '../utils/file_utils.dart';
@@ -25,7 +27,7 @@ final class YamlConfig {
     this.schemaFromUrlToFile,
     this.preferSchemaSource,
     this.language,
-    this.freezed,
+    this.jsonSerializer,
     this.rootClient,
     this.rootClientName,
     this.exportFile,
@@ -36,7 +38,10 @@ final class YamlConfig {
     this.putInFolder,
     this.enumsToJson,
     this.enumsPrefix,
+    this.unknownEnumValue,
     this.markFilesAsGenerated,
+    this.originalHttpResponse,
+    this.defaultContentType,
     this.replacementRules = const [],
   });
 
@@ -134,9 +139,15 @@ final class YamlConfig {
       }
     }
 
-    final freezed = yamlConfig['freezed'];
-    if (freezed is! bool?) {
-      throw const ConfigException("Config parameter 'freezed' must be bool.");
+    JsonSerializer? jsonSerializer;
+    final rawJsonSerializer = yamlConfig['json_serializer']?.toString();
+    if (rawJsonSerializer != null) {
+      jsonSerializer = JsonSerializer.fromString(rawJsonSerializer);
+      if (jsonSerializer == null) {
+        throw ConfigException(
+          "'json_serializer' field must be contained in ${JsonSerializer.values.map((e) => e.name)}.",
+        );
+      }
     }
 
     final rootClient =
@@ -209,10 +220,31 @@ final class YamlConfig {
       );
     }
 
+    final unknownEnumValue = yamlConfig['unknown_enum_value'];
+    if (unknownEnumValue is! bool?) {
+      throw const ConfigException(
+        "Config parameter 'unknown_enum_value' must be bool.",
+      );
+    }
+
     final markFilesAsGenerated = yamlConfig['mark_files_as_generated'];
     if (markFilesAsGenerated is! bool?) {
       throw const ConfigException(
         "Config parameter 'mark_files_as_generated' must be bool.",
+      );
+    }
+
+    final defaultContentType = yamlConfig['default_content_type'];
+    if (defaultContentType is! String?) {
+      throw const ConfigException(
+        "Config parameter 'default_content_type' must be String.",
+      );
+    }
+
+    final originalHttpResponse = yamlConfig['original_http_response'];
+    if (originalHttpResponse is! bool?) {
+      throw const ConfigException(
+        "Config parameter 'original_http_response' must be bool.",
       );
     }
 
@@ -253,7 +285,7 @@ final class YamlConfig {
           schemaFromUrlToFile ?? rootConfig?.schemaFromUrlToFile,
       preferSchemaSource: preferSchemaSource ?? rootConfig?.preferSchemaSource,
       language: language ?? rootConfig?.language,
-      freezed: freezed ?? rootConfig?.freezed,
+      jsonSerializer: jsonSerializer ?? rootConfig?.jsonSerializer,
       rootClient: rootClient ?? rootConfig?.rootClient,
       rootClientName: rootClientName ?? rootConfig?.rootClientName,
       exportFile: exportFile ?? rootConfig?.exportFile,
@@ -262,10 +294,14 @@ final class YamlConfig {
       putClientsInFolder: putClientsInFolder ?? rootConfig?.putClientsInFolder,
       squashClients: squashClients ?? rootConfig?.squashClients,
       pathMethodName: pathMethodName ?? rootConfig?.pathMethodName,
+      originalHttpResponse:
+          originalHttpResponse ?? rootConfig?.originalHttpResponse,
       enumsToJson: enumsToJson ?? rootConfig?.enumsToJson,
       enumsPrefix: enumsPrefix ?? rootConfig?.enumsPrefix,
+      unknownEnumValue: unknownEnumValue ?? rootConfig?.unknownEnumValue,
       markFilesAsGenerated:
           markFilesAsGenerated ?? rootConfig?.markFilesAsGenerated,
+      defaultContentType: defaultContentType ?? rootConfig?.defaultContentType,
       replacementRules: replacementRules ?? rootConfig?.replacementRules ?? [],
     );
   }
@@ -349,7 +385,7 @@ final class YamlConfig {
   final bool? schemaFromUrlToFile;
   final PreferSchemaSource? preferSchemaSource;
   final ProgrammingLanguage? language;
-  final bool? freezed;
+  final JsonSerializer? jsonSerializer;
   final String? clientPostfix;
   final bool? rootClient;
   final String? rootClientName;
@@ -360,18 +396,9 @@ final class YamlConfig {
   final bool? putInFolder;
   final bool? enumsToJson;
   final bool? enumsPrefix;
+  final bool? unknownEnumValue;
   final bool? markFilesAsGenerated;
+  final String? defaultContentType;
+  final bool? originalHttpResponse;
   final List<ReplacementRule> replacementRules;
-}
-
-/// Enum for choosing schema source
-enum PreferSchemaSource {
-  url,
-  path;
-
-  /// Returns [PreferSchemaSource] from string
-  static PreferSchemaSource? fromString(String string) =>
-      values.firstWhereOrNull(
-        (e) => e.name == string,
-      );
 }

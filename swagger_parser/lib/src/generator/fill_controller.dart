@@ -1,5 +1,6 @@
 import '../utils/case_utils.dart';
 import 'models/generated_file.dart';
+import 'models/json_serializer.dart';
 import 'models/open_api_info.dart';
 import 'models/programming_language.dart';
 import 'models/universal_data_class.dart';
@@ -15,28 +16,34 @@ final class FillController {
     String rootClientName = 'RestClient',
     String exportFileName = 'export',
     bool putClientsInFolder = false,
-    bool freezed = false,
+    JsonSerializer jsonSerializer = JsonSerializer.jsonSerializable,
     bool enumsToJson = false,
+    bool unknownEnumValue = true,
     bool markFilesAsGenerated = false,
+    String defaultContentType = 'application/json',
   })  : _openApiInfo = openApiInfo,
         _programmingLanguage = programmingLanguage,
         _clientPostfix = clientPostfix,
         _rootClientName = rootClientName,
         _exportFileName = exportFileName,
         _putClientsInFolder = putClientsInFolder,
-        _freezed = freezed,
+        _jsonSerializer = jsonSerializer,
         _enumsToJson = enumsToJson,
-        _markFilesAsGenerated = markFilesAsGenerated;
+        _unknownEnumValue = unknownEnumValue,
+        _markFilesAsGenerated = markFilesAsGenerated,
+        _defaultContentType = defaultContentType;
 
   final OpenApiInfo _openApiInfo;
   final ProgrammingLanguage _programmingLanguage;
   final String _clientPostfix;
   final String _rootClientName;
   final String _exportFileName;
-  final bool _freezed;
+  final JsonSerializer _jsonSerializer;
   final bool _putClientsInFolder;
   final bool _enumsToJson;
+  final bool _unknownEnumValue;
   final bool _markFilesAsGenerated;
+  final String _defaultContentType;
 
   /// Return [GeneratedFile] generated from given [UniversalDataClass]
   GeneratedFile fillDtoContent(UniversalDataClass dataClass) => GeneratedFile(
@@ -45,8 +52,9 @@ final class FillController {
             '.${_programmingLanguage.fileExtension}',
         contents: _programmingLanguage.dtoFileContent(
           dataClass,
-          freezed: _freezed,
+          jsonSerializer: _jsonSerializer,
           enumsToJson: _enumsToJson,
+          unknownEnumValue: _unknownEnumValue,
           markFilesAsGenerated: _markFilesAsGenerated,
         ),
       );
@@ -65,6 +73,7 @@ final class FillController {
         restClient,
         restClient.name.toPascal + _clientPostfix.toPascal,
         markFilesAsGenerated: _markFilesAsGenerated,
+        defaultContentType: _defaultContentType,
       ),
     );
   }

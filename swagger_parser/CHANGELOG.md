@@ -1,7 +1,68 @@
+## 1.13.1
+- Fixed error with path-level parameters cause crash ([#147](https://github.com/Carapacik/swagger_parser/issues/147))
+- Fixed `dart:io` import in template
+
+## 1.13.0
+- Added support for [dart_mappable](https://pub.dev/packages/dart_mappable)
+- Changed `freezed` schema property to `json_serializer`, which can be set to `freezed`, `dart_mappable` or `json_serializable` (default).
+- Fixed enum generation name that are defined inside an array
+
+## 1.12.2
+- Fixes enum duplicate names ([#140](https://github.com/Carapacik/swagger_parser/issues/140))
+
+## 1.12.1
+- Fixed error with `ref` in a case other than PascalCase ([#139](https://github.com/Carapacik/swagger_parser/issues/139))
+
+## 1.12.0
+- Add new config parameter `export_file`
+
+## 1.11.3
+- Fixed error with annotating client methods with the first specified content type header in OpenAPI V2 schemas if the specified one is not the default.
+
+## 1.11.2
+- Add description of request parameters to the code docs
+
+## 1.11.1
+- Fixed ref component being wrongly labeled as map
+- Fixed map components being assigned an import despite not needing one
+
+## 1.11.0
+- Added unknown value to all enums to maintain backwards compatibility when adding new values on the backend
+- Add new config parameter `unknown_enum_value` (dart only) ([#106](https://github.com/Carapacik/swagger_parser/issues/106))
+- Add new config parameter `default_content_type`
+- Support String values with spaces for enums ([#127](https://github.com/Carapacik/swagger_parser/issues/127))
+
+## 1.10.6
+- Fixed map objects parsing as separate entities ([#124](https://github.com/Carapacik/swagger_parser/issues/124))
+
+## 1.10.5
+- Fixed error with parsing dictionary objects ([#113](https://github.com/Carapacik/swagger_parser/issues/113))
+
+## 1.10.4
+- Fixed error with `additionalProperties` ([#114](https://github.com/Carapacik/swagger_parser/issues/114))
+
+## 1.10.3
+- Add new config parameter `original_http_response` (dart only) ([#115](https://github.com/Carapacik/swagger_parser/issues/115))
+
+## 1.10.2
+- Fix error in `body` with name in dart template
+
+## 1.10.1
+- Fix error with query parameter named `body` ([#108](https://github.com/Carapacik/swagger_parser/issues/108))
+
+## 1.10.0
+- Support for generating schemas by url (see [example](https://github.com/Carapacik/swagger_parser/blob/main/swagger_parser/example/swagger_parser.yaml))
+- Add new config parameter `schema_url`
+- Add new config parameter `schema_from_url_to_file`
+- Add new config parameter `prefer_schema_source`
+
+## 1.9.2
+- Fix error with `required` in clients ([#101](https://github.com/Carapacik/swagger_parser/issues/103))
+
 ## 1.9.1
 - Handling incorrect names for classes, enums and methods.
-- Additional name for unnamed models [#98](https://github.com/Carapacik/swagger_parser/issues/98)
-- Support for deprecated annotations for methods
+- Additional name for unnamed models ([#98](https://github.com/Carapacik/swagger_parser/issues/98))
+- Support for `deprecated` annotations for methods
 
 ## 1.9.0
 - Added display of generation statistics for each scheme and total
