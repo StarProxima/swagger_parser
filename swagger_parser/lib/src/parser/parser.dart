@@ -994,6 +994,14 @@ class OpenApiParser {
             .whereType<Map<String, dynamic>>()
             .any((e) => e[_typeConst] == 'null');
 
+        // Find type in of one-element allOf
+        if (map.containsKey(_allOfConst) && of.length == 1) {
+          final item = of[0];
+          if (item is Map<String, dynamic>) {
+            (import: ofImport, type: ofType) = _findType(item);
+          }
+        }
+
         // Find nullable type in of two-element anyOf
         if (map.containsKey(_anyOfConst) && of.length == 2) {
           final item1 = of[0];
