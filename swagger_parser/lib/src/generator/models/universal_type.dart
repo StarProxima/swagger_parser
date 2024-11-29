@@ -162,10 +162,11 @@ extension UniversalTypeX on UniversalType {
   }
 
   String _questionMark(ProgrammingLanguage lang) {
-    final questionMark =
-        isRequired && !nullable || arrayDepth > 0 || defaultValue != null
-            ? ''
-            : '?';
+    final questionMark = isRequired && !nullable ||
+            arrayDepth > 0 ||
+            (defaultValue != null && !nullable)
+        ? ''
+        : '?';
     switch (lang) {
       case ProgrammingLanguage.dart:
         return type.toDartType(format) + questionMark;

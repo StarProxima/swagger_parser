@@ -12,6 +12,10 @@ String dartFreezedDtoTemplate(
   UniversalComponentClass dataClass, {
   required bool markFileAsGenerated,
 }) {
+  if (dataClass.name == 'NotificationsPreferences') {
+    print(dataClass);
+  }
+
   final className = dataClass.name.toPascal;
   return '''
 ${generatedFileComment(

@@ -1062,10 +1062,6 @@ class OpenApiParser {
         import: import,
       );
 
-      if (map[_titleConst] == 'New Advise Time') {
-        print(result);
-      }
-
       return result;
     }
     // Type or ref
