@@ -1053,11 +1053,11 @@ class OpenApiParser {
           enumType: enumType,
           isRequired: isRequired,
           arrayDepth: ofType?.arrayDepth ?? 0,
-          nullable: hasNullableOType ||
+          nullable: 
               root &&
                   map.containsKey(_nullableConst) &&
                   map[_nullableConst].toString().toBool() ||
-              (ofType?.nullable ?? false),
+              (ofType?.nullable ?? hasNullableOType),
         ),
         import: import,
       );
