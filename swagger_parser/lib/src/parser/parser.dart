@@ -986,18 +986,16 @@ class OpenApiParser {
         map.containsKey(_oneOfConst)) {
       String? ofImport;
       UniversalType? ofType;
+      var hasNullableOType = false;
 
       final of = map[_allOfConst] ?? map[_anyOfConst] ?? map[_oneOfConst];
       if (of is List<dynamic>) {
-        // Find type in of one-element allOf, anyOf or oneOf
-        if (of.length == 1) {
-          final item = of[0];
-          if (item is Map<String, dynamic>) {
-            (import: ofImport, type: ofType) = _findType(item);
-          }
-        }
+        hasNullableOType = of
+            .whereType<Map<String, dynamic>>()
+            .any((e) => e[_typeConst] == 'null');
+
         // Find nullable type in of two-element anyOf
-        else if (map.containsKey(_anyOfConst) && of.length == 2) {
+        if (map.containsKey(_anyOfConst) && of.length == 2) {
           final item1 = of[0];
           final item2 = of[1];
           if (item1 is Map<String, dynamic> && item2 is Map<String, dynamic>) {
@@ -1047,7 +1045,8 @@ class OpenApiParser {
           enumType: enumType,
           isRequired: isRequired,
           arrayDepth: ofType?.arrayDepth ?? 0,
-          nullable: root &&
+          nullable: hasNullableOType ||
+              root &&
                   map.containsKey(_nullableConst) &&
                   map[_nullableConst].toString().toBool() ||
               (ofType?.nullable ?? false),
