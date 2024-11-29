@@ -990,9 +990,10 @@ class OpenApiParser {
 
       final of = map[_allOfConst] ?? map[_anyOfConst] ?? map[_oneOfConst];
       if (of is List<dynamic>) {
-        hasNullableOType = of
-            .whereType<Map<String, dynamic>>()
-            .any((e) => e[_typeConst] == 'null');
+        hasNullableOType = of.any(
+          // ignore: avoid_bool_literals_in_conditional_expressions
+          (e) => e is Map<String, dynamic> ? e[_typeConst] == 'null' : false,
+        );
 
         // Find type in of one-element allOf
         if (map.containsKey(_allOfConst) && of.length == 1) {
@@ -1036,7 +1037,7 @@ class OpenApiParser {
       final (newName, description) =
           protectName(name, description: map[_descriptionConst]?.toString());
 
-      return (
+      final result = (
         type: UniversalType(
           type: type,
           name: newName?.toCamel,
@@ -1053,14 +1054,19 @@ class OpenApiParser {
           enumType: enumType,
           isRequired: isRequired,
           arrayDepth: ofType?.arrayDepth ?? 0,
-          nullable: 
-              root &&
+          nullable: root &&
                   map.containsKey(_nullableConst) &&
                   map[_nullableConst].toString().toBool() ||
               (ofType?.nullable ?? hasNullableOType),
         ),
         import: import,
       );
+
+      if (map[_titleConst] == 'New Advise Time') {
+        print(result);
+      }
+
+      return result;
     }
     // Type or ref
     else {
